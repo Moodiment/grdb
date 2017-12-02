@@ -3,6 +3,7 @@
 
 
 #include <stdlib.h>
+#include <stdio.h>
 #include "schema.h"
 #include "tuple.h"
 #include "vertexid.h"
@@ -114,7 +115,7 @@ component_select();
 component_t
 component_join(component_t c1, component_t c2);
 
-/* 
+/*
  * Execute Dijkstra's algorithm on the specified component.  Find the
  * shortest path from v1 to v2 if it exists in the component c.
  *
@@ -127,7 +128,7 @@ component_join(component_t c1, component_t c2);
  * and the value (-1) otherwise.  If a correct result is obtained an
  * array is returned through the other parameters.  The reference parameter
  * n is used to return the number of vertices on the path, including the
- * two specified endpoints.  The reference parameter total_weight is used 
+ * two specified endpoints.  The reference parameter total_weight is used
  * to return the total_weight of summed along the edges of the path.  The
  * path reference parameter returns an array of vertex ids that contain
  * the shortest path, including the two specified endpoints.
