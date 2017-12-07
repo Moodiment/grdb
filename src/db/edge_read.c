@@ -1,4 +1,5 @@
 #include <assert.h>
+// #define _DEBUG 1
 #if _DEBUG
 #include <stdio.h>
 #endif
@@ -23,6 +24,8 @@ edge_read(edge_t e, schema_t schema, int fd)
 	char buf[sizeof(vertexid_t) << 1];
 
 	assert(e != NULL);
+	assert(fd != -1);
+
 #if _DEBUG
 	printf("edge_read: read edge (%llu,%llu)\n", e->id1, e->id2);
 #endif

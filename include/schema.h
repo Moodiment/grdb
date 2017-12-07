@@ -34,7 +34,7 @@ struct schema {
 
 typedef enum base_types base_types_t;
 typedef struct attribute *attribute_t;
-typedef struct schema *schema_t;
+typedef struct schema *schema_t; //This is important to find out our int for SSSP works
 
 extern char *base_types_str[];
 extern int base_types_len[];

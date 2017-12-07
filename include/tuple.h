@@ -6,7 +6,7 @@
 struct tuple {
 	schema_t s;
 	int len;
-	void *buf;
+	void *buf; //Where frank stores is data type?
 };
 
 typedef struct tuple *tuple_t;

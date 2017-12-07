@@ -1,3 +1,4 @@
+#define _DEBUG 1
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>

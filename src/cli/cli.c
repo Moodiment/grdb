@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include "cli.h"
 #include "graph.h"
-
+#define _DEBUG 1
 /* Home directory for user */
 const char *homedir;
 char grdbdir[BUFSIZE];

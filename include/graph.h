@@ -57,6 +57,7 @@ struct graph {
 	struct graph *next;
 };
 
+//Pointers to above structures.
 typedef struct vertex *vertex_t;
 typedef struct edge *edge_t;
 typedef struct component *component_t;

@@ -1,4 +1,5 @@
 #include <assert.h>
+#define _DEBUG 1
 #if _DEBUG
 #include <errno.h>
 #endif
@@ -8,6 +9,7 @@
 #include <string.h>
 #include "config.h"
 #include "graph.h"
+#include "cli.h"
 
 void
 edge_init(edge_t e)
@@ -25,7 +27,10 @@ edge_file_init(int gidx, int cidx)
 
 	/* Create component edge file */
 	memset(s, 0, BUFSIZE);
-	sprintf(s, "%s/%d/%d/e", GRDBDIR, gidx, cidx);
+	sprintf(s, "%s/%d/%d/e", grdbdir, gidx, cidx);
+	/* BUG: This will not open the file when I want it to for christ sakes.
+	* this is because I had to include cli.h for this file to open.
+	GRDBIR apparently as a straight macro ~DOES NOT WORK~*/
 #if _DEBUG
 	printf("edge_file_init: open edge file %s\n", s);
 #endif

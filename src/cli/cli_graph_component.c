@@ -1,3 +1,4 @@
+// #define _DEBUG 1
 #include <dirent.h>
 #if _DEBUG
 #include <errno.h>
