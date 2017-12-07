@@ -5,8 +5,6 @@
 #include "schema.h"
 #include "tuple.h"
 #include "cli.h"
-#include "vector.h"
-#include <math.h>
 #include <stdlib.h>
 #include <unistd.h> //used for read and lseek
 #include <limits.h> //Used to hold infinity.
