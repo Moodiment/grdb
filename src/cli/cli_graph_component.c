@@ -140,7 +140,7 @@ cli_graph_component_sssp(char *cmdline, int *pos)
 	total_weight = (-1);
 	result = component_sssp(&c, v1, v2, &n, &total_weight, &path);
 	if (result < 0) {
-		/* Failure... */
+		// printf("Componenet Critically failed SSSP, please refer to inputs.");
 	}
 }
 

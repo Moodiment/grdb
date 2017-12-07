@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <string.h>
-#include <fcntl.h>
 #include "graph.h"
 #include "schema.h"
 #include "tuple.h"
@@ -162,7 +161,14 @@ vertexid_t *get_min_compare_vertex_lists(vertexid_t *array1, vertexid_t *array2,
   }
   return temp_list;
 }
-
+int find_index(vertexid_t id, vertexid_t* list, int ctr){
+    for(int i = 0; i < ctr; i++)
+    {
+      if(list[i] == id)
+          return i;
+    }
+    return -1; //Could not find it.
+}
 vertexid_t find_min_in_array(vertexid_t *temp_list, int number_of_verticies)
 {
   vertexid_t min = INT_MAX;
@@ -202,7 +208,6 @@ component_sssp(
   char attribute_name[sizeof_attribute_name];
   if(get_integer_attribute_name(c, attribute_name) <= 0)
     { return -1; }
-    int weight = get_edge_weight(c, 1, 1, attribute_name);
 
   //count the number of verticies found in the graph.
   int number_of_verticies = count_num_verticies(c);
@@ -213,18 +218,26 @@ component_sssp(
   vertexid_t* d_cost_array    = malloc(number_of_verticies * sizeof(vertexid_t));
   vertexid_t* V_minus_S_array;
 
+  //Initialize Parent Array
   for(int i = 0; i < number_of_verticies; i++){
     printf("vertex list:%llu\n", vertex_list[i]);
-    parent_array[i] = INT_MAX;
     d_cost_array[i] = INT_MAX;
   }
+  int starting_vertex_index = -1;
+  int ending_vertex_index = -1;
+  for(int i = 0; i < number_of_verticies; i++){
+      if(vertex_list[i] == starting_vertex)
+          starting_vertex_index = i;
+      if(vertex_list[i] == ending_vertex)
+          ending_vertex_index = i;
+  }
 
+  //Sanitize parent array. (remove INT_MAX)
   for(int i = 1; i < number_of_verticies; i++){
       int temp_weight = get_edge_weight(c, starting_vertex, vertex_list[i], attribute_name);
       if(temp_weight != INT_MAX){
           parent_array[i] = starting_vertex;
       }
-
   }
 
   //Suplementary Dijkstra variables.
@@ -306,16 +319,16 @@ component_sssp(
         // iii is the same as v. ??? (Is this true?)
         V_minus_S_array = get_min_compare_vertex_lists(vertex_list, s_array, number_of_verticies);
         v = iii;
-        if(V_minus_S_array[v] >= 10000) {
+        if(V_minus_S_array[v] >= INT_MAX) {  //V-S array value out of bounds
           free(V_minus_S_array);
           continue;
          } //V-S[iii] spot is empty. No value for V-S
 
         // printf("\n\nd_cost_arrayiii:%llu\n", d_cost_array[iii]);
-        printf("D[%d]=%llu\n",v,d_cost_array[v]);
-        printf("D[%d]=%llu + ",w,d_cost_array[w]);
-        printf("C[%llu,%llu]=%llu\n",w,v,get_edge_weight(c,vertex_list[w],vertex_list[v], attribute_name) );
-        printf("Added: %llu",(d_cost_array[w] + get_edge_weight(c,vertex_list[w],vertex_list[v], attribute_name)));
+        printf("D[%llu]=%llu\n",v,d_cost_array[v]);
+        printf("D[%llu]=%llu + ",w,d_cost_array[w]);
+        printf("C[%llu,%llu]=%llu  -->  ", w, v, get_edge_weight(c,vertex_list[w],vertex_list[v], attribute_name) );
+        printf("Added: %llu\n",(d_cost_array[w] + get_edge_weight(c,vertex_list[w],vertex_list[v], attribute_name)));
 
         if((d_cost_array[w] + get_edge_weight(c,vertex_list[w],vertex_list[v], attribute_name) ) < d_cost_array[v])
         {
@@ -344,26 +357,50 @@ component_sssp(
       }
     }
   }
-  parent_array[0] = 0;
+  #if _DEBUG
+  printf("\nFinal values found all arrays:\n");
   printf("vertex_list :: [");
     for(int n = 0; n < number_of_verticies; n++){
       printf("%llu,", vertex_list[n]);
     }
-  printf("]\n\n");
-  printf("vertex_list :: [");
+  printf("]\n");
+  d_cost_array[0] = 0;
+  printf("d_cost_array :: [");
+  for(int n = 0; n < number_of_verticies; n++){
+    printf("%llu,", d_cost_array[n]);
+  }
+  printf("]\n");
+  parent_array[0] = 0;
+  printf("Parent_array :: [");
     for(int n = 0; n < number_of_verticies; n++){
       printf("%llu,", parent_array[n]);
     }
   printf("]\n");
+  #endif
+  //Build the shorest path to the given node from parent list.
+  int shortest_path_ctr = 0;
+  vertexid_t *shortest_path = malloc(number_of_verticies * sizeof(vertexid_t));
+  shortest_path[0] = ending_vertex;
+  shortest_path_ctr = 1;
+  vertexid_t tmp_builder = parent_array[ending_vertex_index];
+  while(tmp_builder != starting_vertex)
+  {
+    shortest_path[shortest_path_ctr] = tmp_builder;
+    shortest_path_ctr++;
+    int found_index = find_index(tmp_builder, vertex_list, number_of_verticies);
+    tmp_builder = parent_array[found_index];
+  }
+  shortest_path[shortest_path_ctr] = starting_vertex;
+  shortest_path_ctr++;
 
-  // for(int i = 0; i < number_of_verticies; i++)
-  // {
-  //   printf("Parent Array: %llu\n",parent_array[i]);
-  // }
-  // for(int i = 0; i < number_of_verticies; i++)
-  // {
-  //   printf("d_cost Array: %llu\n",d_cost_array[i]);
-  // }
+  //Print shortest path.
+  printf("From: %llu To: %llu --> Total cost:[%llu]\n", starting_vertex, ending_vertex, d_cost_array[ending_vertex_index]);
+  printf("Shortest path: [");
+  for(int c = shortest_path_ctr-1; c >= 0; c--){
+      printf("%llu,", shortest_path[c]);
+  }
+  printf("]\n");
+  free(shortest_path);
 
 
 
@@ -396,7 +433,6 @@ void tests()
 
   vertexid_t* V_minus_S_array_test;
   printf("\n----------------Checking V-S---------------\n");
-  int s_array_ctr;
   const int test_ctr = 5;
   unsigned long long a1[test_ctr] = {1,2,3,4};
   unsigned long long a2[test_ctr] = {1,0,0,0};
